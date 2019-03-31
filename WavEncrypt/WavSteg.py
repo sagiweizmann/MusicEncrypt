@@ -82,7 +82,7 @@ def recover_data(sound_path, output_path, num_lsb, bytes_to_recover):
     print("Reading files...".ljust(35), end='', flush=True)
     start = time()
     sound = wave.open(sound_path, "r")
-
+    # Here change
     num_channels = sound.getnchannels()
     sample_width = sound.getsampwidth()
     num_frames = sound.getnframes()
