@@ -83,7 +83,7 @@ def hide_data(sound_path, file_path, output_path, num_lsb):
     print("Done in {:.2f} s".format(time() - start))
 
 
-def recover_data(sound_path, output_path, num_lsb, bytes_to_recover):
+def recover_data(sound_path, output_path, num_lsb):
     """Recover data from the file at sound_path to the file at output_path"""
     print("Reading files...".ljust(35), end='', flush=True)
     start = time()
@@ -127,7 +127,6 @@ def usage():
           "-f, --file=       Path to a file to hide in the sound file\n",
           "-o, --output=     Path to an output file\n",
           "-n, --LSBs=       How many LSBs to use\n",
-          "-b, --bytes=      How many bytes to recover from the sound file\n",
           "--help            Display this message\n")
 
 
@@ -165,8 +164,6 @@ if __name__ == "__main__":
             output_fp = arg
         elif opt in ("-n", "--LSBs="):
             num_bits = int(arg)
-        elif opt in ("-b", "--bytes="):
-            num_bytes_to_recover = int(arg)
         elif opt == "--help":
             usage()
             sys.exit(1)
@@ -177,7 +174,7 @@ if __name__ == "__main__":
         if hiding_data:
             hide_data(sound_fp, input_fp, output_fp, num_bits)
         if recovering_data:
-            recover_data(sound_fp, output_fp, num_bits, num_bytes_to_recover)
+            recover_data(sound_fp, output_fp, num_bits)
     except Exception as e:
         print("Ran into an error during execution.\n",
               "Check input and try again.\n")
