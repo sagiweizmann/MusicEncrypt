@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from WavEncrypt.bit_manipulation import lsb_interleave_bytes, lsb_deinterleave_bytes
+from bit_manipulation import lsb_interleave_bytes, lsb_deinterleave_bytes
 import getopt
 import math
 import os
@@ -41,14 +41,20 @@ def hide_data(sound_path, file_path, output_path, num_lsb):
 
     # We can hide up to num_lsb bits in each sample of the sound file
     max_bytes_to_hide = (num_samples * num_lsb) // 8
+    # Open File
+    data = open(file_path, "r+b").read().decode()
     file_size = os.stat(file_path).st_size
+    data = str(len(str(file_size) + " " + str(data))) + " " + str(data)
+    print(data)
+    file_size = len(data)
+    data = data.encode()
 
     print("Using {} LSBs, we can hide {} B".format(num_lsb, max_bytes_to_hide))
 
     print("Reading files...".ljust(35), end='', flush=True)
     start = time()
     sound_frames = sound.readframes(num_frames)
-    data = open(file_path, "rb").read()
+
     print("Done in {:.2f} s".format(time() - start))
 
     # Checks if the input file can be encrypted into the wav
@@ -87,12 +93,16 @@ def recover_data(sound_path, output_path, num_lsb, bytes_to_recover):
     sample_width = sound.getsampwidth()
     num_frames = sound.getnframes()
     sound_frames = sound.readframes(num_frames)
+
     print("Done in {:.2f} s".format(time() - start))
 
     if sample_width != 1 and sample_width != 2:
         # Python's wave module doesn't support higher sample widths
         raise ValueError("File has an unsupported bit-depth")
 
+    # Added by Me :)
+    bytes_to_recover = int(lsb_deinterleave_bytes(sound_frames, 8 * 3, num_lsb,
+                                                  byte_depth=sample_width).decode())
     print("Recovering {} bytes...".format(bytes_to_recover).ljust(35),
           end='', flush=True)
     start = time()
@@ -102,6 +112,7 @@ def recover_data(sound_path, output_path, num_lsb, bytes_to_recover):
 
     print("Writing to output file...".ljust(35), end='', flush=True)
     start = time()
+    data = data[4::]
     output_file = open(output_path, "wb+")
     output_file.write(bytes(data))
     output_file.close()

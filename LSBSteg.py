@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from WavEncrypt.bit_manipulation import lsb_interleave_list, lsb_deinterleave_list
-from WavEncrypt.bit_manipulation import roundup
+from bit_manipulation import lsb_interleave_list, lsb_deinterleave_list
+from bit_manipulation import roundup
 import getopt
 import os
 from PIL import Image
