@@ -18,7 +18,9 @@ try:
 except ImportError:
     import tkinter.ttk as ttk
     py3 = True
-
+from tkinter import *
+from tkinter import messagebox
+back=None
 
 class MusicEncrypt(tk.Tk):
     def __init__(self):
@@ -26,7 +28,7 @@ class MusicEncrypt(tk.Tk):
         self._frame = None
         self.switch_frame(SignIn)
         top = self
-        top.geometry("600x450+336+136")
+        top.geometry("640x480+336+136")
         top.title("Sign in")
         top.configure(background="#ffffff")
         top.configure(highlightbackground="#d9d9d9")
@@ -35,9 +37,12 @@ class MusicEncrypt(tk.Tk):
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
+        global back
+        back = type(self._frame)
         if self._frame is not None:
             for widget in self.winfo_children():
                 widget.destroy()
+            self._frame.backbutton = tk.Button(text="Back", command=lambda: self.switch_frame(back)).pack()
         new_frame = frame_class(self)
         self._frame = new_frame
         self._frame.pack()
@@ -47,6 +52,7 @@ class Register(tk.Frame):
     def __init__(self, master):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
+        global back
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
