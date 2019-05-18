@@ -19,8 +19,15 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = True
 from tkinter import *
+import tkinter.filedialog
+from encrypt import *
+from decrypt import *
+from WavSteg import hide_data,recover_data
 from tkinter import messagebox
 back=None
+pri=None
+pub=None
+globaluser=None
 
 class MusicEncrypt(tk.Tk):
     def __init__(self):
@@ -42,10 +49,33 @@ class MusicEncrypt(tk.Tk):
         if self._frame is not None:
             for widget in self.winfo_children():
                 widget.destroy()
+            if back == Register:
+                back = SignIn
+            if back == Decryption:
+                back = MainMenu
             self._frame.backbutton = tk.Button(text="Back", command=lambda: self.switch_frame(back)).pack()
         new_frame = frame_class(self)
         self._frame = new_frame
         self._frame.pack()
+
+def checkregister(password,username,password2,master):
+    global pri,pub
+    if(username==""):
+        messagebox.showinfo("Error", "Username missing!")
+    if(password!="" and password2!=""):
+        if(password==password2):
+            check=register(username,password)
+            if(check==False):
+                messagebox.showinfo("Error", "UserName Already Exists")
+            else:
+                pub,pri=check
+                master.switch_frame(Keys)
+        else:
+            messagebox.showinfo("Error", "Passwords are not the same")
+    else:
+        messagebox.showinfo("Error", "Passwords Are empty!")
+
+
 
 
 class Register(tk.Frame):
@@ -61,20 +91,9 @@ class Register(tk.Frame):
         tk.Frame.__init__(self, master)
         top = master
         top.title("Register")
-        self.Button2 = tk.Button()
-        self.Button2.place(relx=0.383, rely=0.667, height=54, width=149)
-        self.Button2.configure(activebackground="#ececec")
-        self.Button2.configure(activeforeground="#000000")
-        self.Button2.configure(background="#28f7f7")
-        self.Button2.configure(disabledforeground="#a3a3a3")
-        self.Button2.configure(font="-family {Segoe UI} -size 12 -weight bold")
-        self.Button2.configure(foreground="#000000")
-        self.Button2.configure(highlightbackground="#d9d9d9")
-        self.Button2.configure(highlightcolor="black")
-        self.Button2.configure(pady="0")
-        self.Button2.configure(text='''Submit''',command=lambda: (master.switch_frame(Keys)))
 
-        self.tex45 = tk.Text()
+
+        self.tex45 = tk.Entry()
         self.tex45.place(relx=0.433, rely=0.4, relheight=0.053, relwidth=0.39)
         self.tex45.configure(background="white")
         self.tex45.configure(font="TkTextFont")
@@ -84,12 +103,9 @@ class Register(tk.Frame):
         self.tex45.configure(insertbackground="black")
         self.tex45.configure(selectbackground="#c4c4c4")
         self.tex45.configure(selectforeground="black")
-        self.tex45.configure(width=234)
-        self.tex45.configure(wrap="word")
-        tooltip_font = "TkDefaultFont"
-        ToolTip(self.tex45, tooltip_font, '''User name''', delay=0.5)
+        self.tex45.configure(width=234, show="*")
 
-        self.Text2 = tk.Text()
+        self.Text2 = tk.Entry()
         self.Text2.place(relx=0.433, rely=0.511, relheight=0.053, relwidth=0.39)
         self.Text2.configure(background="white")
         self.Text2.configure(font="TkTextFont")
@@ -99,8 +115,7 @@ class Register(tk.Frame):
         self.Text2.configure(insertbackground="black")
         self.Text2.configure(selectbackground="#c4c4c4")
         self.Text2.configure(selectforeground="black")
-        self.Text2.configure(width=234)
-        self.Text2.configure(wrap="word")
+        self.Text2.configure(width=234, show="*")
         tooltip_font = "TkDefaultFont"
         ToolTip(self.Text2, tooltip_font, '''password''', delay=0.5)
 
@@ -116,7 +131,7 @@ class Register(tk.Frame):
         self.Label1.configure(highlightcolor="black")
         self.Label1.configure(text='''Register''')
 
-        self.Text1 = tk.Text()
+        self.Text1 = tk.Entry()
         self.Text1.place(relx=0.433, rely=0.289, relheight=0.053, relwidth=0.39)
         self.Text1.configure(background="white")
         self.Text1.configure(font="TkTextFont")
@@ -127,7 +142,6 @@ class Register(tk.Frame):
         self.Text1.configure(selectbackground="#c4c4c4")
         self.Text1.configure(selectforeground="black")
         self.Text1.configure(width=234)
-        self.Text1.configure(wrap="word")
 
         self.Label2 = tk.Label()
         self.Label2.place(relx=0.2, rely=0.267, height=34, width=110)
@@ -164,7 +178,26 @@ class Register(tk.Frame):
         self.Label4.configure(highlightbackground="#d9d9d9")
         self.Label4.configure(highlightcolor="black")
         self.Label4.configure(text='''Repeat Password''')
+        self.Button2 = tk.Button()
+        self.Button2.place(relx=0.383, rely=0.667, height=54, width=149)
+        self.Button2.configure(activebackground="#ececec")
+        self.Button2.configure(activeforeground="#000000")
+        self.Button2.configure(background="#28f7f7")
+        self.Button2.configure(disabledforeground="#a3a3a3")
+        self.Button2.configure(font="-family {Segoe UI} -size 12 -weight bold")
+        self.Button2.configure(foreground="#000000")
+        self.Button2.configure(highlightbackground="#d9d9d9")
+        self.Button2.configure(highlightcolor="black")
+        self.Button2.configure(pady="0")
+        self.Button2.configure(text='''Submit''',command=lambda: (checkregister(self.tex45.get(),self.Text1.get(),self.Text2.get(),master)))
 
+def checklogin(username,password,master):
+    global globaluser
+    if(login(username,password)):
+        globaluser=username
+        master.switch_frame(MainMenu)
+    else:
+        messagebox.showinfo("Error", "User name or password wrong")
 
 class SignIn(tk.Frame):
     def __init__(self, master):
@@ -202,8 +235,8 @@ class SignIn(tk.Frame):
         self.Label1.configure(highlightcolor="#9efcff")
         self.Label1.configure(text='''Sign in''')
 
-        self.Text1 = tk.Text()
-        self.Text1.place(relx=0.35, rely=0.289, relheight=0.098, relwidth=0.357)
+        self.Text1 = tk.Entry()
+        self.Text1.place(relx=0.35, rely=0.31, relheight=0.053, relwidth=0.39)
         self.Text1.configure(background="#ffffff")
         self.Text1.configure(font="TkTextFont")
         self.Text1.configure(foreground="black")
@@ -213,9 +246,8 @@ class SignIn(tk.Frame):
         self.Text1.configure(selectbackground="#c4c4c4")
         self.Text1.configure(selectforeground="black")
         self.Text1.configure(width=214)
-        self.Text1.configure(wrap="word")
-        self.Text2 = tk.Text()
-        self.Text2.place(relx=0.35, rely=0.422, relheight=0.098, relwidth=0.357)
+        self.Text2 = tk.Entry()
+        self.Text2.place(relx=0.35, rely=0.44, relheight=0.053, relwidth=0.39)
         self.Text2.configure(background="#ffffff")
         self.Text2.configure(font="TkTextFont")
         self.Text2.configure(foreground="black")
@@ -224,8 +256,8 @@ class SignIn(tk.Frame):
         self.Text2.configure(insertbackground="black")
         self.Text2.configure(selectbackground="#c4c4c4")
         self.Text2.configure(selectforeground="black")
-        self.Text2.configure(width=214)
-        self.Text2.configure(wrap="word")
+        self.Text2.configure(width=214,show="*")
+
 
         self.Label2 = tk.Label()
         self.Label2.place(relx=0.117, rely=0.289, height=31, width=121)
@@ -262,7 +294,7 @@ class SignIn(tk.Frame):
         self.Button1_1.configure(highlightbackground="#d9d9d9")
         self.Button1_1.configure(highlightcolor="black")
         self.Button1_1.configure(pady="0")
-        self.Button1_1.configure(text='''Sign in''', command=lambda: (master.switch_frame(MainMenu)))
+        self.Button1_1.configure(text='''Sign in''', command=lambda: (checklogin(self.Text1.get(),self.Text2.get(),master)))
 
 
 class Keys(tk.Frame):
@@ -338,6 +370,8 @@ class Keys(tk.Frame):
         self.Text2.configure(selectforeground="black")
         self.Text2.configure(width=324)
         self.Text2.configure(wrap="word")
+        self.Text2.insert('1.0',pri)
+        self.Text1.insert('1.0',pub)
 
 
 class MainMenu(tk.Frame):
@@ -400,8 +434,29 @@ class MainMenu(tk.Frame):
         self.Button3.configure(highlightbackground="#d9d9d9")
         self.Button3.configure(highlightcolor="black")
         self.Button3.configure(pady="0")
-        self.Button3.configure(text='''Generate''')
+        self.Button3.configure(text='''Generate''',command=lambda : generate(master))
 
+        self.Label1 = tk.Label()
+        self.Label1.place(relx=0, rely=0, height=51, width=150)
+        self.Label1.configure(activebackground="#f9f9f9")
+        self.Label1.configure(activeforeground="black")
+        self.Label1.configure(background="#ffffff")
+        self.Label1.configure(disabledforeground="#a3a3a3")
+        self.Label1.configure(font="-family {Segoe UI} -size 10 ")
+        self.Label1.configure(foreground="#000000")
+        self.Label1.configure(highlightbackground="#d9d9d9")
+        self.Label1.configure(highlightcolor="black")
+        self.Label1.configure(text='''Logged in as:'''+globaluser)
+
+def generate(master):
+    global pri,pub
+    messagebox.showwarning("Warning", "Are you sure you want to Re-Generate Your keys?")
+    pub,pri=regenerate(globaluser)
+    master.switch_frame(Keys)
+def encryptmsg(key,msg,file):
+    encrypt(key,msg)
+    file = file[:-1]
+    hide_data(file,"file.txt","sound_steg.wav",2)
 class Encryption(tk.Frame):
     def __init__(self, master):
         '''This class configures and populates the toplevel window.
@@ -471,7 +526,7 @@ class Encryption(tk.Frame):
         self.Button1.configure(highlightbackground="#d9d9d9")
         self.Button1.configure(highlightcolor="black")
         self.Button1.configure(pady="0")
-        self.Button1.configure(text='''Browse''')
+        self.Button1.configure(text='''Browse''', command=lambda: openFile(self.Text2))
 
         self.Text2 = tk.Text()
         self.Text2.place(relx=0.267, rely=0.511, relheight=0.098, relwidth=0.657)
@@ -524,12 +579,14 @@ class Encryption(tk.Frame):
         self.Button2.configure(highlightbackground="#d9d9d9")
         self.Button2.configure(highlightcolor="black")
         self.Button2.configure(pady="0")
-        self.Button2.configure(text='''Encrypt''')
-
-        self.TCombobox1 = ttk.Combobox()
-        self.TCombobox1.place(relx=0.267, rely=0.222, relheight=0.091
-                , relwidth=0.422)
+        self.Button2.configure(text='''Encrypt''',command=lambda : encryptmsg(self.Text1.get('1.0',END),self.Text3.get('1.0',END),self.Text2.get('1.0',END)))
+        data=dict(get_data())
+        combobox_values = list(data.keys())
+        self.TCombobox1 = ttk.Combobox(values=combobox_values)
+        self.TCombobox1.place(relx=0.267, rely=0.222, relheight=0.091, relwidth=0.422)
         self.TCombobox1.configure(takefocus="")
+        self.TCombobox1.bind('<<ComboboxSelected>>', self.modified)
+
 
         self.Label4 = tk.Label()
         self.Label4.place(relx=0.083, rely=0.2, height=41, width=104)
@@ -542,6 +599,31 @@ class Encryption(tk.Frame):
         self.Label4.configure(highlightbackground="#d9d9d9")
         self.Label4.configure(highlightcolor="black")
         self.Label4.configure(text='''Search:''')
+    def modified(self, event):
+        data=dict(get_data())
+        self.Text1.delete('1.0', END)
+        self.Text1.insert('1.0',data[self.TCombobox1.get()]['pubkey'])
+of_opt = {}
+of_opt['filetypes'] = [('WAV files','.wav')]
+def openFile(text):
+    filename = tkinter.filedialog.askopenfilename(**of_opt)
+    if filename:
+        text.delete('1.0', END)
+        text.insert('1.0', filename)
+message=""
+def decryptmsg(privatekey,file,master):
+    global message
+    file = file[:-1]
+    recover_data(file, "file_output.txt", 2)
+    with open("file_output.txt") as readfile:
+        todecrypt = readfile.read()
+    try:
+        message = decrypt(todecrypt,privatekey)
+        master.switch_frame(Message)
+    except Exception as e:
+        messagebox.showinfo("Error", "Incorrect Decryption !")
+
+
 
 
 class Decryption(tk.Frame):
@@ -570,18 +652,6 @@ class Decryption(tk.Frame):
         self.Label1.configure(highlightcolor="black")
         self.Label1.configure(text='''Decryption''')
 
-        self.Button1 = tk.Button()
-        self.Button1.place(relx=0.1, rely=0.533, height=44, width=117)
-        self.Button1.configure(activebackground="#ececec")
-        self.Button1.configure(activeforeground="#000000")
-        self.Button1.configure(background="#53f4ef")
-        self.Button1.configure(disabledforeground="#a3a3a3")
-        self.Button1.configure(font="-family {Segoe UI} -size 12 -weight bold")
-        self.Button1.configure(foreground="#000000")
-        self.Button1.configure(highlightbackground="#d9d9d9")
-        self.Button1.configure(highlightcolor="black")
-        self.Button1.configure(pady="0")
-        self.Button1.configure(text='''Browse''')
 
         self.Label2 = tk.Label()
         self.Label2.place(relx=0.35, rely=0.2, height=31, width=124)
@@ -621,6 +691,18 @@ class Decryption(tk.Frame):
         self.Text2.configure(selectforeground="black")
         self.Text2.configure(width=314)
         self.Text2.configure(wrap="word")
+        self.Button1 = tk.Button()
+        self.Button1.place(relx=0.1, rely=0.533, height=44, width=117)
+        self.Button1.configure(activebackground="#ececec")
+        self.Button1.configure(activeforeground="#000000")
+        self.Button1.configure(background="#53f4ef")
+        self.Button1.configure(disabledforeground="#a3a3a3")
+        self.Button1.configure(font="-family {Segoe UI} -size 12 -weight bold")
+        self.Button1.configure(foreground="#000000")
+        self.Button1.configure(highlightbackground="#d9d9d9")
+        self.Button1.configure(highlightcolor="black")
+        self.Button1.configure(pady="0")
+        self.Button1.configure(text='''Browse''', command=lambda: openFile(self.Text2))
 
         self.Button2 = tk.Button()
         self.Button2.place(relx=0.367, rely=0.733, height=54, width=167)
@@ -633,7 +715,7 @@ class Decryption(tk.Frame):
         self.Button2.configure(highlightbackground="#d9d9d9")
         self.Button2.configure(highlightcolor="black")
         self.Button2.configure(pady="0")
-        self.Button2.configure(text='''Decrypt''',command=lambda: (master.switch_frame(Message)))
+        self.Button2.configure(text='''Decrypt''',command=lambda: (decryptmsg(self.Text1.get('1.0',END),self.Text2.get('1.0',END),master)))
 
 
 class Message(tk.Frame):
@@ -674,6 +756,8 @@ class Message(tk.Frame):
         self.Text1.configure(selectforeground="black")
         self.Text1.configure(width=534)
         self.Text1.configure(wrap="word")
+        self.Text1.delete('1.0', END)
+        self.Text1.insert('1.0',message)
 
 # ======================================================
 # Modified by Rozen to remove Tkinter import statements and to receive
@@ -793,7 +877,7 @@ class ToolTip(tk.Toplevel):
         self.withdraw()
 
 # ===========================================================
-#                   End of Class ToolTip
+#                   END of Class ToolTip
 # ===========================================================
 def center(win):
     """

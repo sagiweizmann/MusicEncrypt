@@ -7,46 +7,57 @@ import os
 def generate_key():
     random_generator = Random.new().read
     key = RSA.generate(1024, random_generator) #generate pub and priv key
-    publickey = key.publickey() # pub key export for exchange
-    print(key.exportKey())
-    print(publickey.exportKey())
     return key
 
 def encrypt(key,msg):
-    encryptor = PKCS1_OAEP.new(key.publickey())
+    pubkey=RSA.import_key(key)
+    encryptor = PKCS1_OAEP.new(pubkey.publickey())
     encrypted = encryptor.encrypt(bytes(msg, 'utf8'))
-    print(encrypted)
+    with open("file.txt", "w") as write_file:
+        write_file.write(str(encrypted))
     #message to encrypt is in the above line 'encrypt this message'
 
 def get_data():
     if (os.path.exists("./data_file.json")):
-        with open("data_file.json", "r") as read_file:
+        with open("data_file.json") as read_file:
             data = json.load(read_file)
         read_file.close()
     else:
-        data = {"admin": "admin"}
+        data = {}
     return data
-def main():
+def register(username,password):
     data = get_data()
-    name='mar'
-    if (dict(data).get(name) != None):
-        print("Try again")
+    if (dict(data).get(username) != None):
+        return False
     else:
         pub=generate_key()
         temp=str(pub.publickey().exportKey().decode())
-        pas=12345
-        data1 = {name: {
-            'pass': pas,
+        data1 = {username: {
+            'pass': password,
             'pubkey': temp
             }
         }
         data1.update(data)
         with open("data_file.json", "w") as write_file:
-            json.dump(data1, write_file)
+            json.dump(data1, write_file,indent=2)
         write_file.close()
-        msg="hello word"
-        encrypt(pub,msg)
+        return pub.exportKey(),pub.publickey().exportKey()
+      #  msg="hello word"
+       # encrypt(pub,msg)
 
+def login(username,password):
+    data = dict(get_data())
+    if (data.get(username) != None):
+        if(data.get(username)['pass']==password):
+            return True
+    else:
+        return False
 
-
-main()
+def regenerate(username):
+    data = dict(get_data())
+    pub = generate_key()
+    temp = str(pub.publickey().exportKey().decode())
+    data[username]['pubkey']=temp
+    with open("data_file.json", "w") as write_file:
+        json.dump(data, write_file, indent=2)
+    return pub.exportKey(), pub.publickey().exportKey()

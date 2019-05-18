@@ -6,7 +6,7 @@ def decrypt(encr,privatekey):
     key = RSA.importKey(privatekey)
     decryptor = PKCS1_OAEP.new(key)
     decrypted = decryptor.decrypt(ast.literal_eval(str(encr)))
-    print ("decrypted:", decrypted.decode())
+    return decrypted.decode()
 
 
 def main():
@@ -14,5 +14,3 @@ def main():
     z=b"\x0c\xaa\xaaJ\xb6\xadV:\xc5\xea\r\xed\xbf\x14TN\x97\xbc;\xa8:d\xef\x01\x86U\xe9-\x80yl2\x1995\x86.\x84/\xfd!o?L?\x90\x9c\xe7\r\xe5\xb95\\C\xcc\x92\x14\x00\\'0gF7)\xf8\xd0Z:\xbe\xbd\xec\x15?U\x88$v\xf2_\xb6\xa1h\xdb\xdc\x05\xa6\xcfm_\x14\xf30\xd2\x9f\n\xe8\xbb\x9bVp\x16\x184\xb4\xaev\x84\xffI\x08_]GJ'g9c]-\x07\xa8\xb1\xf1\xc7\xd7K"
     decrypt(z,t)
 
-
-main()
