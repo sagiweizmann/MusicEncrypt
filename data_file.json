@@ -1,7 +1,7 @@
 {
   "sagi": {
     "pass": "7702",
-    "pubkey": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1onFUTrTzntr29wuujQB+XrAh\nyq1apfvEh1LDBeFctEzo2lDsTX4mrAaShk31lo+lPu6coz4hqK1cN3RFO3aQT50I\nyohnpK6vw7dIspcUV6w++SNlUwuf7SP5M5et90WW+ptYr14pB8UWL1iDXYPmdZOd\n2OKlK4ezRhUxWolW+wIDAQAB\n-----END PUBLIC KEY-----"
+    "pubkey": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8S2XilQnLI5ITkQDUVjUidyAL\n6Dzg36VE0ot786MOQwesRvC3DT4Et4yTEf2cYhTJ+N0FnWOm37B84/LZMR0T+tt2\njjyTARzO1nPGrCyuidkEfeRBiAWmKyKnA1EgXPsQzk5MGGxb4rKTyoumYx/WCIrb\n27vD2d+rZxgacS/wOwIDAQAB\n-----END PUBLIC KEY-----"
   },
   "saf": {
     "pass": "123",

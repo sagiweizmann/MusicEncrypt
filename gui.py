@@ -446,7 +446,7 @@ class MainMenu(tk.Frame):
         self.Label1.configure(foreground="#000000")
         self.Label1.configure(highlightbackground="#d9d9d9")
         self.Label1.configure(highlightcolor="black")
-        self.Label1.configure(text='''Logged in as:'''+globaluser)
+        self.Label1.configure(text='''Logged in as: '''+globaluser)
 
 def generate(master):
     global pri,pub
@@ -553,10 +553,12 @@ class Encryption(tk.Frame):
         self.Label3.configure(highlightbackground="#d9d9d9")
         self.Label3.configure(highlightcolor="black")
         self.Label3.configure(text='''Message:''')
-
-        self.Text3 = tk.Text()
+        sv = StringVar()
+        sv.trace("w", lambda name, index, mode, sv=sv: callback(sv))
+        def callback(sv):
+            self.CountLbl.configure(text=str(len(sv.get()))+'''/85''')
+        self.Text3 = tk.Entry(textvariable=sv)
         self.Text3.place(relx=0.267, rely=0.644, relheight=0.187, relwidth=0.657)
-
         self.Text3.configure(background="white")
         self.Text3.configure(font="TkTextFont")
         self.Text3.configure(foreground="black")
@@ -566,8 +568,7 @@ class Encryption(tk.Frame):
         self.Text3.configure(selectbackground="#c4c4c4")
         self.Text3.configure(selectforeground="black")
         self.Text3.configure(width=394)
-        self.Text3.configure(wrap="word")
-
+        self.Text3.bind('<Return>', self.test)
         self.Button2 = tk.Button()
         self.Button2.place(relx=0.333, rely=0.844, height=52, width=176)
         self.Button2.configure(activebackground="#ececec")
@@ -579,7 +580,7 @@ class Encryption(tk.Frame):
         self.Button2.configure(highlightbackground="#d9d9d9")
         self.Button2.configure(highlightcolor="black")
         self.Button2.configure(pady="0")
-        self.Button2.configure(text='''Encrypt''',command=lambda : encryptmsg(self.Text1.get('1.0',END),self.Text3.get('1.0',END),self.Text2.get('1.0',END)))
+        self.Button2.configure(text='''Encrypt''',command=lambda : encryptmsg(self.Text1.get('1.0',END),self.Text3.get(),self.Text2.get('1.0',END)))
         data=dict(get_data())
         combobox_values = list(data.keys())
         self.TCombobox1 = ttk.Combobox(values=combobox_values)
@@ -599,6 +600,24 @@ class Encryption(tk.Frame):
         self.Label4.configure(highlightbackground="#d9d9d9")
         self.Label4.configure(highlightcolor="black")
         self.Label4.configure(text='''Search:''')
+
+        self.CountLbl = tk.Label()
+        self.CountLbl.place(relx=0.7, rely=0.85, height=51, width=100)
+        self.CountLbl.configure(activebackground="#f9f9f9")
+        self.CountLbl.configure(activeforeground="black")
+        self.CountLbl.configure(background="#ffffff")
+        self.CountLbl.configure(disabledforeground="#a3a3a3")
+        self.CountLbl.configure(font="-family {Segoe UI} -size 10 ")
+        self.CountLbl.configure(foreground="#000000")
+        self.CountLbl.configure(highlightbackground="#d9d9d9")
+        self.CountLbl.configure(highlightcolor="black")
+        self.CountLbl.configure(text='''0/85''')
+
+
+
+    def test(self,event):
+        self.CountLbl.configure(text='''3/85''')
+        print("changed")
     def modified(self, event):
         data=dict(get_data())
         self.Text1.delete('1.0', END)
