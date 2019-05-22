@@ -18,12 +18,15 @@ try:
 except ImportError:
     import tkinter.ttk as ttk
     py3 = True
+from PIL import ImageTk
+import PIL.Image
 from tkinter import *
 import tkinter.filedialog
 from encrypt import *
 from decrypt import *
 from WavSteg import hide_data,recover_data
 from tkinter import messagebox
+
 back=None
 pri=None
 pub=None
@@ -209,7 +212,12 @@ class SignIn(tk.Frame):
         _ana1color = '#d9d9d9' # X11 color: 'gray85'
         _ana2color = '#ececec' # Closest X11 color: 'gray92'
         tk.Frame.__init__(self, master)
+        img = ImageTk.PhotoImage(PIL.Image.open("logo.png"))
 
+        imglabel = Label(self, image=img)
+        imglabel.grid(row=1, column=1)
+        imglabel.img = img
+        imglabel.pack(side = "bottom", fill = "both", expand = "yes")
         self.Button1 = tk.Button()
         self.Button1.place(relx=0.383, rely=0.778, height=54, width=165)
         self.Button1.configure(activebackground="#ececec")
@@ -223,17 +231,6 @@ class SignIn(tk.Frame):
         self.Button1.configure(pady="0")
         self.Button1.configure(text='''Register''',command=lambda: (master.switch_frame(Register)))
 
-        self.Label1 = tk.Label()
-        self.Label1.place(relx=0.233, rely=0.067, height=51, width=327)
-        self.Label1.configure(activebackground="#f9f9f9")
-        self.Label1.configure(activeforeground="black")
-        self.Label1.configure(background="#ffffff")
-        self.Label1.configure(disabledforeground="#46dbf2")
-        self.Label1.configure(font="-family {Segoe UI} -size 24 -weight bold")
-        self.Label1.configure(foreground="#000000")
-        self.Label1.configure(highlightbackground="#4fe4ef")
-        self.Label1.configure(highlightcolor="#9efcff")
-        self.Label1.configure(text='''Sign in''')
 
         self.Text1 = tk.Entry()
         self.Text1.place(relx=0.35, rely=0.31, relheight=0.053, relwidth=0.39)
@@ -568,7 +565,6 @@ class Encryption(tk.Frame):
         self.Text3.configure(selectbackground="#c4c4c4")
         self.Text3.configure(selectforeground="black")
         self.Text3.configure(width=394)
-        self.Text3.bind('<Return>', self.test)
         self.Button2 = tk.Button()
         self.Button2.place(relx=0.333, rely=0.844, height=52, width=176)
         self.Button2.configure(activebackground="#ececec")
@@ -612,12 +608,6 @@ class Encryption(tk.Frame):
         self.CountLbl.configure(highlightbackground="#d9d9d9")
         self.CountLbl.configure(highlightcolor="black")
         self.CountLbl.configure(text='''0/85''')
-
-
-
-    def test(self,event):
-        self.CountLbl.configure(text='''3/85''')
-        print("changed")
     def modified(self, event):
         data=dict(get_data())
         self.Text1.delete('1.0', END)
