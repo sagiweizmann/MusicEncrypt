@@ -214,7 +214,7 @@ class SignIn(tk.Frame):
         tk.Frame.__init__(self, master)
         img = ImageTk.PhotoImage(PIL.Image.open("logo.png"))
 
-        imglabel = Label(self, image=img)
+        imglabel = Label(self, image=img,bg='#FFFFFF')
         imglabel.grid(row=1, column=1)
         imglabel.img = img
         imglabel.pack(side = "bottom", fill = "both", expand = "yes")
