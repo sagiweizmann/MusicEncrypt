@@ -340,7 +340,7 @@ class Keys(tk.Frame):
         self.Button1.configure(highlightbackground="#d9d9d9")
         self.Button1.configure(highlightcolor="black")
         self.Button1.configure(pady="0")
-        self.Button1.configure(text='''Export''')
+        self.Button1.configure(text='''Export''',command=lambda:saveas())
 
         self.Text1 = tk.Text()
         self.Text1.place(relx=0.283, rely=0.222, relheight=0.187, relwidth=0.54)
@@ -369,6 +369,13 @@ class Keys(tk.Frame):
         self.Text2.configure(wrap="word")
         self.Text2.insert('1.0',pri)
         self.Text1.insert('1.0',pub)
+
+def saveas():
+    directory = tkinter.filedialog.asksaveasfilename(title='Save as Private key',defaultextension = 'pgp',filetypes=[('Key File (*.pgp)', ".pgp"),('Text Files (*.txt)', ".txt")])
+    if(directory != ''):
+        f = open(directory, "w")
+        f.write(pub.decode())
+        f.close()
 
 
 class MainMenu(tk.Frame):
@@ -447,13 +454,21 @@ class MainMenu(tk.Frame):
 
 def generate(master):
     global pri,pub
-    messagebox.showwarning("Warning", "Are you sure you want to Re-Generate Your keys?")
-    pub,pri=regenerate(globaluser)
-    master.switch_frame(Keys)
+    MsgBox = tk.messagebox.askquestion('Warning', 'Are you sure you want to Re-Generate Your keys?',
+                                       icon='warning')
+    if MsgBox == 'yes':
+        pub,pri=regenerate(globaluser)
+        master.switch_frame(Keys)
+    else:
+        pass
 def encryptmsg(key,msg,file):
-    encrypt(key,msg)
-    file = file[:-1]
-    hide_data(file,"file.txt","sound_steg.wav",2)
+    directory = tkinter.filedialog.asksaveasfilename(title='Save as Output Wav', defaultextension='pgp',
+                                                     filetypes=[('Wave File (*.wav)', ".wav")])
+    if (directory != ''):
+        encrypt(key,msg)
+        file = file[:-1]
+        hide_data(file,"file.txt",directory,2)
+        tkinter.messagebox.showinfo("Music Encrypt","Encrypted Successfully!")
 class Encryption(tk.Frame):
     def __init__(self, master):
         '''This class configures and populates the toplevel window.
@@ -500,7 +515,7 @@ class Encryption(tk.Frame):
         self.Label2.configure(text='''Public Key:''')
 
         self.Text1 = tk.Text()
-        self.Text1.place(relx=0.267, rely=0.356, relheight=0.12, relwidth=0.657)
+        self.Text1.place(relx=0.267, rely=0.356, relheight=0.12, relwidth=0.422)
         self.Text1.configure(background="white")
         self.Text1.configure(font="TkTextFont")
         self.Text1.configure(foreground="black")
@@ -524,6 +539,7 @@ class Encryption(tk.Frame):
         self.Button1.configure(highlightcolor="black")
         self.Button1.configure(pady="0")
         self.Button1.configure(text='''Browse''', command=lambda: openFile(self.Text2))
+
 
         self.Text2 = tk.Text()
         self.Text2.place(relx=0.267, rely=0.511, relheight=0.098, relwidth=0.657)
@@ -612,14 +628,18 @@ class Encryption(tk.Frame):
         data=dict(get_data())
         self.Text1.delete('1.0', END)
         self.Text1.insert('1.0',data[self.TCombobox1.get()]['pubkey'])
-of_opt = {}
-of_opt['filetypes'] = [('WAV files','.wav')]
-def openFile(text):
+
+def openKey(text):
+    of_opt = {}
+    of_opt['filetypes'] = [('Key File (*.pgp)', ".pgp"), ('Text Files (*.txt)', ".txt")]
     filename = tkinter.filedialog.askopenfilename(**of_opt)
-    if filename:
+    if filename!='':
         text.delete('1.0', END)
-        text.insert('1.0', filename)
+        with open(filename,'r+b') as f:
+            key = f.read().decode()
+            text.insert('1.0', key)
 message=""
+
 def decryptmsg(privatekey,file,master):
     global message
     file = file[:-1]
@@ -628,11 +648,19 @@ def decryptmsg(privatekey,file,master):
         todecrypt = readfile.read()
     try:
         message = decrypt(todecrypt,privatekey)
+        messagebox.showinfo("Music Encrypt", "Decrypted Successfully!")
         master.switch_frame(Message)
     except Exception as e:
         messagebox.showinfo("Error", "Incorrect Decryption !")
 
 
+def openFile(text):
+    of_opt = {}
+    of_opt['filetypes'] = [('WAV files', '.wav')]
+    filename = tkinter.filedialog.askopenfilename(**of_opt)
+    if filename:
+        text.delete('1.0', END)
+        text.insert('1.0', filename)
 
 
 class Decryption(tk.Frame):
@@ -675,7 +703,7 @@ class Decryption(tk.Frame):
         self.Label2.configure(text='''Private Key''')
 
         self.Text1 = tk.Text()
-        self.Text1.place(relx=0.1, rely=0.289, relheight=0.142, relwidth=0.757)
+        self.Text1.place(relx=0.1, rely=0.289, relheight=0.142, relwidth=0.600)
         self.Text1.configure(background="white")
         self.Text1.configure(font="TkTextFont")
         self.Text1.configure(foreground="black")
@@ -712,6 +740,20 @@ class Decryption(tk.Frame):
         self.Button1.configure(highlightcolor="black")
         self.Button1.configure(pady="0")
         self.Button1.configure(text='''Browse''', command=lambda: openFile(self.Text2))
+
+        self.importbtn = tk.Button()
+        self.importbtn.place(relx=0.720, rely=0.310, height=44, width=117)
+        self.importbtn.configure(activebackground="#ececec")
+        self.importbtn.configure(activeforeground="#000000")
+        self.importbtn.configure(background="#53f4ef")
+        self.importbtn.configure(disabledforeground="#a3a3a3")
+        self.importbtn.configure(font="-family {Segoe UI} -size 12 -weight bold")
+        self.importbtn.configure(foreground="#000000")
+        self.importbtn.configure(highlightbackground="#d9d9d9")
+        self.importbtn.configure(highlightcolor="black")
+        self.importbtn.configure(pady="0")
+        self.importbtn.configure(text='''Import''', command=lambda: openKey(self.Text1))
+
 
         self.Button2 = tk.Button()
         self.Button2.place(relx=0.367, rely=0.733, height=54, width=167)
